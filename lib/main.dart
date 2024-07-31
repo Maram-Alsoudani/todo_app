@@ -2,7 +2,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:provider/provider.dart';
+import 'package:to_do_app/EditTaskScreen.dart';
+import 'package:to_do_app/MyAppTheme.dart';
 import 'package:to_do_app/home/HomeScreen.dart';
+import 'package:to_do_app/providers/AppConfigProvider.dart';
+import 'package:to_do_app/providers/ListProvider.dart';
 
 import 'firebase_options.dart';
 
@@ -14,9 +20,13 @@ void main() async {
 
   await FirebaseFirestore.instance.disableNetwork();
 
-  runApp(
-    const MyApp(),
-  );
+  runApp(MultiProvider(
+    providers: [
+      ChangeNotifierProvider(create: (_) => AppConfigProvider()),
+      ChangeNotifierProvider(create: (_) => ListProvider()),
+    ],
+    child: const MyApp(),
+  ));
 }
 
 class MyApp extends StatelessWidget {
@@ -24,12 +34,20 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final provider = Provider.of<AppConfigProvider>(context);
     return MaterialApp(
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       debugShowCheckedModeBanner: false,
-      initialRoute: Homescreen.screenRoute,
-      routes: {Homescreen.screenRoute: (context) => Homescreen()},
+      initialRoute: HomeScreen.screenRoute,
+      routes: {
+        HomeScreen.screenRoute: (context) => HomeScreen(),
+        EditTaskScreen.screenRoute: (context) => EditTaskScreen()
+      },
+      theme: MyAppTheme.lightMode,
+      themeMode: provider.appTheme,
+      darkTheme: MyAppTheme.DarkMode,
+      locale: Locale(provider.appLanguage),
     );
   }
 }
