@@ -12,14 +12,14 @@ import '../providers/AppConfigProvider.dart';
 import '../providers/ListProvider.dart';
 import 'BaseScaffold.dart';
 
-class HomeeScreen extends StatefulWidget {
+class HomeScreen extends StatefulWidget {
   static const screenRoute = "home_screen";
 
   @override
-  State<HomeeScreen> createState() => _HomeeScreenState();
+  State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeeScreenState extends State<HomeeScreen> {
+class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     var listProvider = Provider.of<ListProvider>(context);
