@@ -39,9 +39,15 @@ class MyApp extends StatelessWidget {
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       debugShowCheckedModeBanner: false,
+ feature/provider
       initialRoute: HomeScreen.screenRoute,
       routes: {
         HomeScreen.screenRoute: (context) => HomeScreen(),
+
+      initialRoute: HomeScreen.screenRoute,
+      routes: {
+        HomeScreen.screenRoute: (context) => HomeScreen(),
+ development
         EditTaskScreen.screenRoute: (context) => EditTaskScreen()
       },
       theme: MyAppTheme.lightMode,
