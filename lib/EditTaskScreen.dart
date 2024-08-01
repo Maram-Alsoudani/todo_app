@@ -20,7 +20,8 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
   late TextEditingController _titleController;
   late TextEditingController _descriptionController;
   late DateTime _selectedDate;
-  DateTime selectedDate = DateTime.now();
+
+  // DateTime selectedDate = DateTime.now();
   late ListProvider listProvider;
   late AppConfigProvider provider;
   @override
@@ -32,7 +33,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
     listProvider = Provider.of<ListProvider>(context);
     final localization = AppLocalizations.of(context)!;
     provider = Provider.of<AppConfigProvider>(context);
-    String formattedDate = DateFormat('dd-MM-yyyy ').format(selectedDate);
+    String formattedDate = DateFormat('dd-MM-yyyy ').format(_selectedDate);
 
     return Scaffold(
       backgroundColor: provider.appTheme == ThemeMode.light
@@ -202,7 +203,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
   }
 
   Future<void> showCalendar(BuildContext context) async {
-    DateTime initialDate = selectedDate;
+    DateTime initialDate = _selectedDate;
     DateTime firstDate = initialDate;
     DateTime lastDate = initialDate.add(Duration(days: 365));
 
@@ -245,9 +246,10 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
       },
     );
 
-    if (chosenDate != null && chosenDate != selectedDate) {
-      selectedDate = chosenDate;
-      setState(() {});
+    if (chosenDate != null && chosenDate != _selectedDate) {
+      setState(() {
+        _selectedDate = chosenDate;
+      });
     }
   }
 
@@ -261,6 +263,6 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
     await FirebaseUtils.updateTask(
         task, 'dateTime', task.dateTime.millisecondsSinceEpoch);
     listProvider.updateTask(task);
-    Navigator.pop(context);
+    Navigator.pop(context, _selectedDate);
   }
 }
