@@ -124,7 +124,7 @@ class _TaskBottomSheetState extends State<TaskBottomSheet> {
                     ),
                     InkWell(
                       onTap: () {
-                        showCalender();
+                        showCalender(context);
                       },
                       child: Text(
                         formattedDate,
@@ -177,12 +177,12 @@ class _TaskBottomSheetState extends State<TaskBottomSheet> {
     }
   }
 
-  void showCalender() async {
-    var chosenDate = await showDatePicker(
+  Future<void> showCalender(BuildContext context) async {
+    DateTime? chosenDate = await showDatePicker(
       context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime.now(),
-      lastDate: DateTime.now().add(Duration(days: 365)),
+      initialDate: selectedDate,
+      firstDate: selectedDate,
+      lastDate: selectedDate.add(Duration(days: 365)),
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
@@ -201,7 +201,9 @@ class _TaskBottomSheetState extends State<TaskBottomSheet> {
         );
       },
     );
-    selectedDate = chosenDate ?? selectedDate;
-    setState(() {});
+    if (chosenDate != null && chosenDate != selectedDate) {
+      selectedDate = chosenDate;
+      setState(() {});
+    }
   }
 }
