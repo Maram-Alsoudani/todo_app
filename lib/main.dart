@@ -3,11 +3,13 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
+import 'package:to_do_app/EditTaskScreen.dart';
 import 'package:to_do_app/MyAppTheme.dart';
 import 'package:to_do_app/home/HomeScreen.dart';
 import 'package:to_do_app/providers/AppConfigProvider.dart';
 import 'package:to_do_app/providers/ListProvider.dart';
 
+import 'DatePicker.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -40,6 +42,8 @@ class MyApp extends StatelessWidget {
       initialRoute: HomeScreen.screenRoute,
       routes: {
         HomeScreen.screenRoute: (context) => HomeScreen(),
+        DatePicker.screenRoute: (context) => DatePicker(),
+        EditTaskScreen.screenRoute: (context) => EditTaskScreen()
       },
       theme: MyAppTheme.lightMode,
       themeMode: provider.appTheme,

@@ -22,7 +22,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
   late DateTime _selectedDate;
   DateTime selectedDate = DateTime.now();
   late ListProvider listProvider;
-
+  late AppConfigProvider provider;
   @override
   Widget build(BuildContext context) {
     final task = ModalRoute.of(context)!.settings.arguments as Task;
@@ -30,10 +30,10 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
     _descriptionController = TextEditingController(text: task.description);
     _selectedDate = task.dateTime;
     listProvider = Provider.of<ListProvider>(context);
-
     final localization = AppLocalizations.of(context)!;
-    var provider = Provider.of<AppConfigProvider>(context);
+    provider = Provider.of<AppConfigProvider>(context);
     String formattedDate = DateFormat('dd-MM-yyyy ').format(selectedDate);
+
     return Scaffold(
       backgroundColor: provider.appTheme == ThemeMode.light
           ? AppColors.main_background_color_light
@@ -130,7 +130,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                       ),
                       maxLines: 4,
                       cursorColor: AppColors.primary_color,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         focusedBorder: UnderlineInputBorder(
                           borderSide:
                               BorderSide(color: AppColors.primary_color),
@@ -142,7 +142,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                         ),
                       ),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 20,
                     ),
                     Text(
@@ -154,21 +154,12 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                               : AppColors.white,
                           fontSize: 20),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 20,
                     ),
                     InkWell(
-                      onTap: () async {
-                        DateTime? pickedDate = await showDatePicker(
-                          context: context,
-                          initialDate: _selectedDate,
-                          firstDate: DateTime(2000),
-                          lastDate: DateTime(2101),
-                        );
-                        if (pickedDate != null && pickedDate != _selectedDate)
-                          setState(() {
-                            _selectedDate = pickedDate;
-                          });
+                      onTap: () {
+                        showCalendar(context);
                       },
                       child: Text(
                         "${_selectedDate.toLocal()}".split(' ')[0],
@@ -181,7 +172,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                             ),
                       ),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 40,
                     ),
                     SizedBox(
@@ -190,16 +181,16 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                         onPressed: () {
                           _saveChanges(context);
                         },
+                        style: const ButtonStyle(
+                          backgroundColor:
+                              WidgetStatePropertyAll(AppColors.primary_color),
+                        ),
                         child: Text(localization.save_changes,
                             style: Theme.of(context)
                                 .textTheme
                                 .titleSmall
                                 ?.copyWith(
                                     color: AppColors.white, fontSize: 20)),
-                        style: ButtonStyle(
-                          backgroundColor:
-                              WidgetStatePropertyAll(AppColors.primary_color),
-                        ),
                       ),
                     )
                   ],
@@ -210,32 +201,54 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
     );
   }
 
-  void showCalender() async {
-    var chosenDate = await showDatePicker(
+  Future<void> showCalendar(BuildContext context) async {
+    DateTime initialDate = selectedDate;
+    DateTime firstDate = initialDate;
+    DateTime lastDate = initialDate.add(Duration(days: 365));
+
+    DateTime? chosenDate = await showDatePicker(
       context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime.now(),
-      lastDate: DateTime.now().add(Duration(days: 365)),
+      initialDate: initialDate,
+      firstDate: firstDate,
+      lastDate: lastDate,
       builder: (context, child) {
         return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: ColorScheme.light(
-              primary: AppColors.primary_color, // header background color
-              onPrimary: AppColors.white, // header text color
-              onSurface: AppColors.black, // body text color
-            ),
+          data: provider.appTheme == ThemeMode.light
+              ? Theme.of(context).copyWith(
+                  colorScheme: const ColorScheme.light(
+                    primary: AppColors.primary_color, // Header background color
+                    onPrimary: AppColors.white, // Header text color
+                    onSurface: AppColors.black, // Body text color
+                  ),
             textButtonTheme: TextButtonThemeData(
               style: TextButton.styleFrom(
-                foregroundColor: AppColors.primary_color, // button text color
-              ),
+                      foregroundColor:
+                          AppColors.primary_color, // Button text color
+                    ),
+                  ),
+                )
+              : Theme.of(context).copyWith(
+                  colorScheme: const ColorScheme.dark(
+                    primary: AppColors.primary_color, // Header background color
+                    onPrimary: AppColors.black, // Header text color
+                    onSurface: AppColors.white, // Body text color
+                  ),
+                  textButtonTheme: TextButtonThemeData(
+                    style: TextButton.styleFrom(
+                      foregroundColor:
+                          AppColors.primary_color, // Button text color
+                    ),
             ),
           ),
           child: child!,
         );
       },
     );
-    selectedDate = chosenDate ?? selectedDate;
-    setState(() {});
+
+    if (chosenDate != null && chosenDate != selectedDate) {
+      selectedDate = chosenDate;
+      setState(() {});
+    }
   }
 
   void _saveChanges(BuildContext context) async {
@@ -243,7 +256,6 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
     task.title = _titleController.text;
     task.description = _descriptionController.text;
     task.dateTime = _selectedDate;
-
     await FirebaseUtils.updateTask(task, 'title', task.title);
     await FirebaseUtils.updateTask(task, 'description', task.description);
     await FirebaseUtils.updateTask(
