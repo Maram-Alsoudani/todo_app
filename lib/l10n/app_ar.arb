@@ -16,5 +16,11 @@
   "please_enter_your_task": "يرجى إدخال مهمتك",
   "please_enter_description": "يرجى إدخال الوصف",
   "edit_task":"تعديل المهمة",
-  "save_changes":"حفظ التغيرات"
+  "save_changes":"حفظ التغيرات",
+  "create_account":"انشاء حساب",
+  "user_name":"اسم المستخدم",
+  "email":"البريد الإلكتروني",
+  "password":"كلمة السر",
+  "confirm_password":"تأكيد كلمة السر",
+  "login":"تسجيل الدخول"
 }

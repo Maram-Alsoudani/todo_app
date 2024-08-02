@@ -5,11 +5,11 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:to_do_app/EditTaskScreen.dart';
 import 'package:to_do_app/MyAppTheme.dart';
+import 'package:to_do_app/RegisterScreen.dart';
 import 'package:to_do_app/home/HomeScreen.dart';
 import 'package:to_do_app/providers/AppConfigProvider.dart';
 import 'package:to_do_app/providers/ListProvider.dart';
 
-import 'DatePicker.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -39,11 +39,11 @@ class MyApp extends StatelessWidget {
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       debugShowCheckedModeBanner: false,
-      initialRoute: HomeScreen.screenRoute,
+      initialRoute: RegisterScreen.screenRoute,
       routes: {
         HomeScreen.screenRoute: (context) => HomeScreen(),
-        DatePicker.screenRoute: (context) => DatePicker(),
-        EditTaskScreen.screenRoute: (context) => EditTaskScreen()
+        EditTaskScreen.screenRoute: (context) => EditTaskScreen(),
+        RegisterScreen.screenRoute: (context) => RegisterScreen()
       },
       theme: MyAppTheme.lightMode,
       themeMode: provider.appTheme,
