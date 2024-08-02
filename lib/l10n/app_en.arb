@@ -16,5 +16,11 @@
 "please_enter_your_task":"Please enter your task",
 "please_enter_description":"Please enter description",
 "edit_task":"Edit Task",
-"save_changes":"Save Changes"
+"save_changes":"Save Changes",
+"create_account":"Create account",
+"user_name":"Username",
+"email":"Email",
+"password":"Password",
+"confirm_password":"Confirm Password",
+"login":"Login"
 }
