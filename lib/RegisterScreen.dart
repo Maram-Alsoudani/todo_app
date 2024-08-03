@@ -1,7 +1,10 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:to_do_app/AppColors.dart';
 import 'package:to_do_app/CustomTextFormField.dart';
+
+import 'DialogUtils.dart';
 
 class RegisterScreen extends StatefulWidget {
   static const String screenRoute = "register_screen";
@@ -123,7 +126,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   style: ButtonStyle(
                       backgroundColor:
-                          WidgetStatePropertyAll(AppColors.primary_color),
+                          WidgetStatePropertyAll(Color(0xff3598db)),
                       shape: WidgetStatePropertyAll(RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ))),
@@ -134,9 +137,56 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
-  void register() {
+  void register() async {
     if (formKey.currentState?.validate() == true) {
-      //
+      //show loading
+      DialogUtils.showLoading(context: context, message: "Loading..");
+      try {
+        final credential = await FirebaseAuth.instance
+            .createUserWithEmailAndPassword(
+                email: emailController.text, password: passwordController.text);
+        //hide loading
+        DialogUtils.hideLoading(context);
+        //show message
+        DialogUtils.showMessage(
+            context: context,
+            message: "Register successfully.",
+            title: "Success",
+            posActionName: "ok");
+        print(credential.user?.uid ?? "");
+      } on FirebaseAuthException catch (e) {
+        if (e.code == 'weak-password') {
+          //hide loading
+          DialogUtils.hideLoading(context);
+          //show message
+          DialogUtils.showMessage(
+              context: context,
+              message: "The password provided is too weak.",
+              title: "Error",
+              posActionName: "ok");
+          print('The password provided is too weak.');
+        } else if (e.code == 'email-already-in-use') {
+          //hide loading
+          DialogUtils.hideLoading(context);
+          //show message
+          DialogUtils.showMessage(
+              context: context,
+              message: "The account already exists for that email.",
+              title: "Error",
+              posActionName: "ok");
+          print('The account already exists for that email.');
+        }
+      } catch (e) {
+        //hide loading
+        DialogUtils.hideLoading(context);
+        //show message
+        DialogUtils.showMessage(
+            context: context,
+            message: e.toString(),
+            title: "Error",
+            posActionName: "ok");
+        print(e);
+      }
     }
   }
 }
