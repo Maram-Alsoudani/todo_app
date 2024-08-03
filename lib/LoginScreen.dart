@@ -1,9 +1,12 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:to_do_app/RegisterScreen.dart';
+import 'package:to_do_app/home/HomeScreen.dart';
 
 import 'AppColors.dart';
 import 'CustomTextFormField.dart';
+import 'DialogUtils.dart';
 
 class LoginScreen extends StatefulWidget {
   static const String screenRoute = "login_screen";
@@ -129,5 +132,98 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  void login() {}
+  // void login() async {
+  //   //show loading
+  //   // DialogUtils.showLoading(context: context, message: "Loading..");
+  //   try {
+  //     final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+  //         email: emailController.text,
+  //         password: passwordController.text
+  //     );
+  //     //hide loading
+  //     DialogUtils.hideLoading(context);
+  //     //show message
+  //     DialogUtils.showMessage(context: context, message: "Login successfully.", posActionName: "ok", posAction: (){
+  //       Navigator.of(context).pushNamed( HomeScreen.screenRoute);
+  //     });
+  //
+  //     print(credential.user?.uid??"");
+  //
+  //   } on FirebaseAuthException catch (e) {
+  //     if (e.code == 'invalid-credential') {
+  //       //hide loading
+  //       DialogUtils.hideLoading(context);
+  //       //show message
+  //       DialogUtils.showMessage(context: context, message: "No user found for that email and password.", posActionName: "ok");
+  //       print('No user found for that email and password.');
+  //     }
+  //   }catch(e){
+  //     // //hide loading
+  //     // DialogUtils.hideLoading(context);
+  //     // //show message
+  //     // DialogUtils.showMessage(context: context, message: e.toString(), posActionName: "ok");
+  //     print(">>>>>>>>>>>> ${e.toString()}");
+  //   }
+  // }
+
+  void login() async {
+    if (formKey.currentState?.validate() == true) {
+      // Show loading
+      DialogUtils.showLoading(context: context, message: "Loading..");
+      try {
+        final credential =
+            await FirebaseAuth.instance.signInWithEmailAndPassword(
+          email: emailController.text,
+          password: passwordController.text,
+        );
+        // Hide loading
+        DialogUtils.hideLoading(context);
+        // Show success message
+        DialogUtils.showMessage(
+          context: context,
+          message: "Login successfully.",
+          title: "Success",
+          posActionName: "ok",
+          posAction: () {
+            Navigator.of(context).pushNamed(HomeScreen.screenRoute);
+          },
+        );
+
+        print(credential.user?.uid ?? "");
+      } on FirebaseAuthException catch (e) {
+        // Hide loading
+        DialogUtils.hideLoading(context);
+
+        if (e.code == 'invalid-credential') {
+          DialogUtils.showMessage(
+            context: context,
+            message: "No user found for that email and password.",
+            posActionName: "ok",
+            title: "Error",
+          );
+          print('No user found for that email.');
+        } else {
+          DialogUtils.showMessage(
+            context: context,
+            message: "Error: ${e.toString()}",
+            posActionName: "ok",
+            title: "Error",
+          );
+          print("FirebaseAuthException: ${e.message}");
+        }
+      } catch (e) {
+        // Hide loading
+        DialogUtils.hideLoading(context);
+
+        // Show error message
+        DialogUtils.showMessage(
+          context: context,
+          message: "network error",
+          posActionName: "ok",
+          title: "Error",
+        );
+        print("Unexpected error: ${e.toString()}");
+      }
+    }
+  }
 }
