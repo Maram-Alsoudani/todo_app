@@ -123,7 +123,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   style: ButtonStyle(
                       backgroundColor:
-                          WidgetStatePropertyAll(AppColors.primary_color),
+                          WidgetStatePropertyAll(Color(0xff3598db)),
                       shape: WidgetStatePropertyAll(RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ))),

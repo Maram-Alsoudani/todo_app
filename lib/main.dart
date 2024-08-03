@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:to_do_app/EditTaskScreen.dart';
+import 'package:to_do_app/LoginScreen.dart';
 import 'package:to_do_app/MyAppTheme.dart';
 import 'package:to_do_app/RegisterScreen.dart';
 import 'package:to_do_app/home/HomeScreen.dart';
@@ -39,11 +40,12 @@ class MyApp extends StatelessWidget {
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       debugShowCheckedModeBanner: false,
-      initialRoute: RegisterScreen.screenRoute,
+      initialRoute: LoginScreen.screenRoute,
       routes: {
         HomeScreen.screenRoute: (context) => HomeScreen(),
         EditTaskScreen.screenRoute: (context) => EditTaskScreen(),
-        RegisterScreen.screenRoute: (context) => RegisterScreen()
+        RegisterScreen.screenRoute: (context) => RegisterScreen(),
+        LoginScreen.screenRoute: (context) => LoginScreen()
       },
       theme: MyAppTheme.lightMode,
       themeMode: provider.appTheme,
