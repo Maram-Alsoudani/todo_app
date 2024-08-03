@@ -67,11 +67,11 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
               ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(15),
-            borderSide: BorderSide(width: 2, color: AppColors.primary_color),
+            borderSide: BorderSide(width: 2, color: Color(0xff3598db)),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(15),
-            borderSide: BorderSide(width: 2, color: AppColors.primary_color),
+            borderSide: BorderSide(width: 2, color: Color(0xff3598db)),
           ),
           errorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(15),
