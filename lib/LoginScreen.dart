@@ -1,8 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
 import 'package:to_do_app/RegisterScreen.dart';
+import 'package:to_do_app/firebase_utils.dart';
 import 'package:to_do_app/home/HomeScreen.dart';
+import 'package:to_do_app/providers/AppConfigProvider.dart';
+import 'package:to_do_app/providers/AuthUserProvider.dart';
 
 import 'AppColors.dart';
 import 'CustomTextFormField.dart';
@@ -28,11 +32,13 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final localization = AppLocalizations.of(context)!;
-
+    var provider = Provider.of<AppConfigProvider>(context);
     return Stack(
       children: [
         Container(
-            color: AppColors.main_background_color_light,
+            color: provider.appTheme == ThemeMode.light
+                ? AppColors.main_background_color_light
+                : AppColors.main_background_color_dark,
             child: Image(
                 width: double.infinity,
                 height: double.infinity,
@@ -119,7 +125,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             context, RegisterScreen.screenRoute);
                       },
                       child: Text(
-                        "or create an account?",
+                        localization.or_create_an_account,
                         style: Theme.of(context)
                             .textTheme
                             .titleSmall!
@@ -176,14 +182,31 @@ class _LoginScreenState extends State<LoginScreen> {
           email: emailController.text,
           password: passwordController.text,
         );
+        var user = await FirebaseUtils.readUserFromFireStore(
+            credential.user?.uid ?? "");
+
+        if (user == null) {
+          DialogUtils.hideLoading(context);
+          DialogUtils.showMessage(
+            context: context,
+            message: "user data not found",
+            title: AppLocalizations.of(context)!.error,
+            posActionName: AppLocalizations.of(context)!.ok,
+          );
+          return;
+        }
+
+        var authProvider =
+            Provider.of<AuthUserProvider>(context, listen: false);
+        authProvider.changeUser(user);
         // Hide loading
         DialogUtils.hideLoading(context);
         // Show success message
         DialogUtils.showMessage(
           context: context,
-          message: "Login successfully.",
-          title: "Success",
-          posActionName: "ok",
+          message: AppLocalizations.of(context)!.login_successfully,
+          title: AppLocalizations.of(context)!.success,
+          posActionName: AppLocalizations.of(context)!.ok,
           posAction: () {
             Navigator.of(context).pushNamed(HomeScreen.screenRoute);
           },
@@ -197,33 +220,98 @@ class _LoginScreenState extends State<LoginScreen> {
         if (e.code == 'invalid-credential') {
           DialogUtils.showMessage(
             context: context,
-            message: "No user found for that email and password.",
-            posActionName: "ok",
-            title: "Error",
+            message: AppLocalizations.of(context)!
+                .no_user_found_for_that_email_and_password,
+            posActionName: AppLocalizations.of(context)!.ok,
+            title: AppLocalizations.of(context)!.error,
           );
           print('No user found for that email.');
+        } else if (e.code == 'network-request-failed') {
+          DialogUtils.showMessage(
+            context: context,
+            message: AppLocalizations.of(context)!.network_error,
+            posActionName: AppLocalizations.of(context)!.ok,
+            title: AppLocalizations.of(context)!.error,
+          );
+          print('network-request-failed');
         } else {
           DialogUtils.showMessage(
             context: context,
             message: "Error: ${e.toString()}",
-            posActionName: "ok",
-            title: "Error",
+            posActionName: AppLocalizations.of(context)!.ok,
+            title: AppLocalizations.of(context)!.error,
           );
           print("FirebaseAuthException: ${e.message}");
         }
-      } catch (e) {
-        // Hide loading
-        DialogUtils.hideLoading(context);
-
-        // Show error message
-        DialogUtils.showMessage(
-          context: context,
-          message: "network error",
-          posActionName: "ok",
-          title: "Error",
-        );
-        print("Unexpected error: ${e.toString()}");
       }
     }
   }
+
+//  void login() async {
+//     if (formKey.currentState?.validate() == true) {
+//       // Show loading
+//       DialogUtils.showLoading(context: context, message: "Loading..");
+//       try {
+//         final credential =
+//             await FirebaseAuth.instance.signInWithEmailAndPassword(
+//           email: emailController.text,
+//           password: passwordController.text,
+//         );
+//        var user= await FirebaseUtils.readUserFromFireStore(credential.user?.uid??"");
+//
+//        if(user==null){
+//          return;
+//        }
+//         var authProvider=Provider.of<AuthUserProvider>(context, listen: false);
+//         authProvider.changeUser(user);
+//         // Hide loading
+//         DialogUtils.hideLoading(context);
+//         // Show success message
+//         DialogUtils.showMessage(
+//           context: context,
+//           message: "Login successfully.",
+//           title: "Success",
+//           posActionName: "ok",
+//           posAction: () {
+//             Navigator.of(context).pushNamed(HomeScreen.screenRoute);
+//           },
+//         );
+//
+//         print(credential.user?.uid ?? "");
+//       } on FirebaseAuthException catch (e) {
+//         // Hide loading
+//         DialogUtils.hideLoading(context);
+//
+//         if (e.code == 'invalid-credential') {
+//           DialogUtils.showMessage(
+//             context: context,
+//             message: "No user found for that email and password.",
+//             posActionName: "ok",
+//             title: "Error",
+//           );
+//           print('No user found for that email.');
+//         } else {
+//           DialogUtils.showMessage(
+//             context: context,
+//             message: "Error: ${e.toString()}",
+//             posActionName: "ok",
+//             title: "Error",
+//           );
+//           print("FirebaseAuthException: ${e.message}");
+//         }
+//       } catch (e) {
+//         // Hide loading
+//         DialogUtils.hideLoading(context);
+//
+//         // Show error message
+//         DialogUtils.showMessage(
+//           context: context,
+//           message: "network error",
+//           posActionName: "ok",
+//           title: "Error",
+//         );
+//         print("Unexpected error: ${e.toString()}");
+//       }
+//     }
+//   }
 }

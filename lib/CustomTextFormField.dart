@@ -22,7 +22,6 @@ class CustomTextFormField extends StatefulWidget {
 
 class _CustomTextFormFieldState extends State<CustomTextFormField> {
   bool isSecured = false;
-
   @override
   void initState() {
     super.initState();
@@ -38,6 +37,10 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: TextFormField(
+        style: TextStyle(
+            color: provider.appTheme == ThemeMode.light
+                ? AppColors.black
+                : AppColors.white),
         controller: widget.controller,
         keyboardType: widget.keyboardType,
         validator: widget.validator,

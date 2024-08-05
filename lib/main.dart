@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -9,6 +8,7 @@ import 'package:to_do_app/MyAppTheme.dart';
 import 'package:to_do_app/RegisterScreen.dart';
 import 'package:to_do_app/home/HomeScreen.dart';
 import 'package:to_do_app/providers/AppConfigProvider.dart';
+import 'package:to_do_app/providers/AuthUserProvider.dart';
 import 'package:to_do_app/providers/ListProvider.dart';
 
 import 'firebase_options.dart';
@@ -19,12 +19,13 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  await FirebaseFirestore.instance.disableNetwork();
+  // await FirebaseFirestore.instance.disableNetwork();
 
   runApp(MultiProvider(
     providers: [
       ChangeNotifierProvider(create: (_) => AppConfigProvider()),
       ChangeNotifierProvider(create: (_) => ListProvider()),
+      ChangeNotifierProvider(create: (_) => AuthUserProvider())
     ],
     child: const MyApp(),
   ));

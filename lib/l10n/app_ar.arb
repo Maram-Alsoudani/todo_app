@@ -11,7 +11,7 @@
   "dark": "داكن",
   "light": "فاتح",
   "delete": "حذف",
-  "done": "تم",
+  "done": "تم!",
   "settings": "الإعدادات",
   "please_enter_your_task": "يرجى إدخال مهمتك",
   "please_enter_description": "يرجى إدخال الوصف",
@@ -22,5 +22,21 @@
   "email":"البريد الإلكتروني",
   "password":"كلمة السر",
   "confirm_password":"تأكيد كلمة السر",
-  "login":"تسجيل الدخول"
+  "login":"تسجيل الدخول",
+  "logout": "تسجيل خروج",
+  "confirm_logout_message": "هل أنت متأكد أنك تريد تسجيل الخروج؟ ستحتاج إلى تسجيل الدخول مرة أخرى للوصول إلى مهامك.",
+  "cancel": "إلغاء",
+  "or_create_an_account":"او انشاء حساب؟",
+  "error": "خطأ",
+  "register_successfully":"تم انشاء حسابك بنجاح",
+  "login_successfully":"تم تسجيل الدخول بنجاح",
+  "success":"تم بنجاح",
+  "the_password_provided_is_too_weak":"كلمة السر ضعيفة",
+  "the_account_already_exists_for_that_email":"الحساب موجود بالفعل لهذا البريد الإلكتروني",
+  "ok":"حسناً",
+  "no_user_found_for_that_email_and_password":"لم يتم العثور على مستخدم لهذا البريد الإلكتروني وكلمة المرور",
+  "invalid_password":"خطأ في كلمة السر",
+  "network_error":"انت غير متصل بالانترنت"
+
+
 }

@@ -1,13 +1,11 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:easy_date_timeline/easy_date_timeline.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:to_do_app/AppColors.dart';
+import 'package:to_do_app/providers/AuthUserProvider.dart';
 import 'package:to_do_app/tasksList/TaskListItem.dart';
 
-import '../Task.dart';
-import '../firebase_utils.dart';
 import '../providers/AppConfigProvider.dart';
 import '../providers/ListProvider.dart';
 import 'BaseScaffold.dart';
@@ -22,13 +20,15 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
+    var provider = Provider.of<AppConfigProvider>(context);
+
     var listProvider = Provider.of<ListProvider>(context);
+    var authProvider = Provider.of<AuthUserProvider>(context);
     if (listProvider.tasksList.isEmpty) {
-      listProvider.getAllTasksFromFireStore();
+      listProvider.getAllTasksFromFireStore(authProvider.currentUser!.id!);
     }
     var provide = Provider.of<AppConfigProvider>(context);
     return BaseScaffold(
-      title: AppLocalizations.of(context)!.app_title,
       body:
           //tasks list
           Padding(
@@ -50,8 +50,10 @@ class _HomeScreenState extends State<HomeScreen> {
         child: EasyDateTimeLine(
           initialDate: listProvider.selectedDate,
           onDateChange: (selectedDate) {
-            listProvider.changeSelectedDate(selectedDate);
+            listProvider.changeSelectedDate(
+                selectedDate, authProvider.currentUser!.id!);
           },
+          locale: provider.appLanguage == "ar" ? "ar" : "en",
           headerProps: EasyHeaderProps(
             monthPickerType: MonthPickerType.switcher,
             dateFormatter: DateFormatter.fullDateDMY(),
@@ -60,18 +62,20 @@ class _HomeScreenState extends State<HomeScreen> {
             width: 58,
             height: 79,
           ),
-          itemBuilder: (
-            BuildContext context,
-            DateTime date,
-            bool isSelected,
-            VoidCallback onTap,
-          ) {
+          itemBuilder: (BuildContext context,
+              DateTime date,
+              bool isSelected,
+              VoidCallback onTap,) {
             DateTime today = DateTime.now();
             DateTime lastSelectableDate = today.add(Duration(days: 365));
 
             bool isSelectable =
                 date.isAfter(today.subtract(Duration(days: 1))) &&
                     date.isBefore(lastSelectableDate);
+
+            var locale = provider.appLanguage == 'ar' ? 'ar' : 'en';
+            var day = DateFormat.d(locale).format(date);
+            var dayName = DateFormat.E(locale).format(date);
 
             return InkResponse(
               onTap: isSelectable ? onTap : null,
@@ -102,7 +106,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                     Text(
-                      EasyDateFormatter.shortDayName(date, "en_US"),
+                      dayName,
                       style: TextStyle(
                         color: provide.appTheme == ThemeMode.light
                             ? (isSelected

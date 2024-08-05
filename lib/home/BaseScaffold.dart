@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:to_do_app/AppColors.dart';
+import 'package:to_do_app/DialogUtils.dart';
+import 'package:to_do_app/LoginScreen.dart';
 import 'package:to_do_app/settings/SettingsScreen.dart';
 import 'package:to_do_app/tasksList/TaskBottomSheet.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../providers/AppConfigProvider.dart';
+import '../providers/AuthUserProvider.dart';
+import '../providers/ListProvider.dart';
 
 class BaseScaffold extends StatefulWidget {
-  final String title;
   final Widget? body;
   final Widget? overlay;
 
   BaseScaffold({
-    required this.title,
     this.body,
     this.overlay,
   });
@@ -27,6 +30,11 @@ class _BaseScaffoldState extends State<BaseScaffold> {
   @override
   Widget build(BuildContext context) {
     var provider = Provider.of<AppConfigProvider>(context);
+    var listProvider = Provider.of<ListProvider>(context);
+    var authProvider = Provider.of<AuthUserProvider>(context);
+    var title = _selectedIndex == 0
+        ? "${AppLocalizations.of(context)!.app_title}, ${authProvider.currentUser!.name!}"
+        : AppLocalizations.of(context)!.settings;
 
     return Scaffold(
       backgroundColor: provider.appTheme == ThemeMode.light
@@ -41,10 +49,10 @@ class _BaseScaffoldState extends State<BaseScaffold> {
             right: 0,
             child: Container(
               color: AppColors.primary_color,
-              height: 200, // Increased height for app bar
+              height: 230, // Increased height for app bar
               child: Center(
                 child: Text(
-                  widget.title,
+                  title,
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         color: provider.appTheme == ThemeMode.light
                             ? AppColors.white
@@ -55,6 +63,29 @@ class _BaseScaffoldState extends State<BaseScaffold> {
               ),
             ),
           ),
+
+          //logout icon
+          Positioned(
+              top: 40,
+              right: 16,
+              child: IconButton(
+                icon: Icon(Icons.logout_outlined),
+                onPressed: () {
+                  DialogUtils.showMessage(
+                      context: context,
+                      message:
+                          AppLocalizations.of(context)!.confirm_logout_message,
+                      title: AppLocalizations.of(context)!.logout,
+                      negActionName: AppLocalizations.of(context)!.cancel,
+                      posActionName: AppLocalizations.of(context)!.logout,
+                      posAction: () {
+                        listProvider.tasksList = [];
+                        authProvider.currentUser = null;
+                        Navigator.of(context)
+                            .pushReplacementNamed(LoginScreen.screenRoute);
+                      });
+                },
+              )),
           // Body
           Positioned.fill(
             child: Container(
@@ -68,7 +99,7 @@ class _BaseScaffoldState extends State<BaseScaffold> {
           // Optional overlay like calendar
           if (widget.overlay != null && _selectedIndex == 0)
             Positioned(
-              top: 100, // Adjust this value to move the overlay down if needed
+              top: 130, // Adjust this value to move the overlay down if needed
               left: 0,
               right: 0,
               child: widget.overlay!,

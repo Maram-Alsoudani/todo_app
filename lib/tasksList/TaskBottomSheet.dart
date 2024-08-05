@@ -6,6 +6,7 @@ import 'package:to_do_app/AppColors.dart';
 import 'package:to_do_app/Task.dart';
 import 'package:to_do_app/firebase_utils.dart';
 import 'package:to_do_app/providers/AppConfigProvider.dart';
+import 'package:to_do_app/providers/AuthUserProvider.dart';
 
 import '../providers/ListProvider.dart';
 
@@ -20,12 +21,14 @@ class _TaskBottomSheetState extends State<TaskBottomSheet> {
   String title = "";
   String description = "";
   late ListProvider listProvider;
+  late AuthUserProvider authProvider;
 
   @override
   Widget build(BuildContext context) {
     String formattedDate = DateFormat('dd-MM-yyyy ').format(selectedDate);
     var provider = Provider.of<AppConfigProvider>(context);
     listProvider = Provider.of<ListProvider>(context);
+    authProvider = Provider.of<AuthUserProvider>(context);
 
     return SingleChildScrollView(
       child: Container(
@@ -59,6 +62,7 @@ class _TaskBottomSheetState extends State<TaskBottomSheet> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     TextFormField(
+                      cursorColor: AppColors.primary_color,
                       validator: (text) {
                         if (text == null || text.isEmpty) {
                           return AppLocalizations.of(context)!
@@ -67,6 +71,16 @@ class _TaskBottomSheetState extends State<TaskBottomSheet> {
                         return null;
                       },
                       decoration: InputDecoration(
+                        enabledBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(
+                              color: AppColors
+                                  .primary_color), // Bottom border color when the field is enabled
+                        ),
+                        focusedBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(
+                              color: AppColors
+                                  .primary_color), // Bottom border color when the field is focused
+                        ),
                         hintText: AppLocalizations.of(context)!.enter_your_task,
                         hintStyle: Theme.of(context)
                             .textTheme
@@ -84,6 +98,7 @@ class _TaskBottomSheetState extends State<TaskBottomSheet> {
                       height: 10,
                     ),
                     TextFormField(
+                      cursorColor: AppColors.primary_color,
                       validator: (text) {
                         if (text == null || text.isEmpty) {
                           return AppLocalizations.of(context)!
@@ -96,6 +111,16 @@ class _TaskBottomSheetState extends State<TaskBottomSheet> {
                       },
                       maxLines: 4,
                       decoration: InputDecoration(
+                        enabledBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(
+                              color: AppColors
+                                  .primary_color), // Bottom border color when the field is enabled
+                        ),
+                        focusedBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(
+                              color: AppColors
+                                  .primary_color), // Bottom border color when the field is focused
+                        ),
                         hintText:
                             AppLocalizations.of(context)!.enter_description,
                         hintStyle: Theme.of(context)
@@ -168,10 +193,14 @@ class _TaskBottomSheetState extends State<TaskBottomSheet> {
     if (formKey.currentState?.validate() == true) {
       Task task =
           Task(title: title, description: description, dateTime: selectedDate);
-      FirebaseUtils.addTaskToFireStore(task).timeout(Duration(seconds: 1),
-          onTimeout: () {
+      FirebaseUtils.addTaskToFireStore(task, authProvider.currentUser!.id!)
+          .then((value) {
         print("task added succefully");
-        listProvider.getAllTasksFromFireStore();
+        listProvider.getAllTasksFromFireStore(authProvider.currentUser!.id!);
+        Navigator.pop(context);
+      }).timeout(Duration(seconds: 1), onTimeout: () {
+        print("task added succefully");
+        listProvider.getAllTasksFromFireStore(authProvider.currentUser!.id!);
         Navigator.pop(context);
       });
     }

@@ -6,6 +6,7 @@ import 'package:to_do_app/AppColors.dart';
 import 'package:to_do_app/EditTaskScreen.dart';
 import 'package:to_do_app/firebase_utils.dart';
 import 'package:to_do_app/providers/AppConfigProvider.dart';
+import 'package:to_do_app/providers/AuthUserProvider.dart';
 
 import '../Task.dart';
 import '../providers/ListProvider.dart';
@@ -24,13 +25,12 @@ class _TasksListItemState extends State<TasksListItem> {
   Widget build(BuildContext context) {
     var provider = Provider.of<AppConfigProvider>(context);
     var listProvider = Provider.of<ListProvider>(context);
-    // Define the format for hours and minutes in am/pm
-    // final DateFormat formatter = DateFormat('hh:mm a');
-    // Format the DateTime object
-    // final String formattedTime = formatter.format(widget.task.dateTime);
+    var authProvider = Provider.of<AuthUserProvider>(context);
     bool isDone = widget.task.isDone;
     final now = DateTime.now();
     final formattedTime = '${now.hour}:${now.minute}';
+
+    var uid = authProvider.currentUser!.id!;
 
     return InkWell(
       onTap: () {
@@ -47,11 +47,11 @@ class _TasksListItemState extends State<TasksListItem> {
               children: [
                 SlidableAction(
                   onPressed: (context) {
-                    FirebaseUtils.deleteTaskFromFireStore(widget.task)
-                        .timeout(Duration(seconds: 1), onTimeout: () {
+                    FirebaseUtils.deleteTaskFromFireStore(widget.task, uid)
+                        .then((value) {
                       print("task deleted successfully");
-                      listProvider.getAllTasksFromFireStore();
-                    });
+                      listProvider.getAllTasksFromFireStore(uid);
+                    }).timeout(Duration(seconds: 1), onTimeout: () {});
                   },
                   backgroundColor: AppColors.red,
                   label: AppLocalizations.of(context)!.delete,
@@ -90,7 +90,7 @@ class _TasksListItemState extends State<TasksListItem> {
                     ),
                     isDone
                         ? Text(
-                            'Done!',
+                            AppLocalizations.of(context)!.done,
                             style: Theme.of(context)
                                 .textTheme
                                 .titleLarge!
@@ -108,7 +108,7 @@ class _TasksListItemState extends State<TasksListItem> {
                             ),
                             onPressed: () async {
                               await FirebaseUtils.updateTask(
-                                  widget.task, "idDone", true);
+                                  widget.task, "idDone", true, uid);
                               setState(() {
                                 widget.task.isDone = true;
                               });
