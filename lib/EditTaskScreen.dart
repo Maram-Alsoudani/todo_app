@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:to_do_app/AppColors.dart';
 import 'package:to_do_app/providers/AppConfigProvider.dart';
+import 'package:to_do_app/providers/AuthUserProvider.dart';
 import 'package:to_do_app/providers/ListProvider.dart';
 
 import 'Task.dart';
@@ -24,6 +25,9 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
   // DateTime selectedDate = DateTime.now();
   late ListProvider listProvider;
   late AppConfigProvider provider;
+  late AuthUserProvider authProvider;
+  late String uid;
+
   @override
   Widget build(BuildContext context) {
     final task = ModalRoute.of(context)!.settings.arguments as Task;
@@ -34,7 +38,8 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
     final localization = AppLocalizations.of(context)!;
     provider = Provider.of<AppConfigProvider>(context);
     String formattedDate = DateFormat('dd-MM-yyyy ').format(_selectedDate);
-
+    authProvider = Provider.of<AuthUserProvider>(context);
+    uid = authProvider.currentUser!.id!;
     return Scaffold(
       backgroundColor: provider.appTheme == ThemeMode.light
           ? AppColors.main_background_color_light
@@ -258,10 +263,10 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
     task.title = _titleController.text;
     task.description = _descriptionController.text;
     task.dateTime = _selectedDate;
-    await FirebaseUtils.updateTask(task, 'title', task.title);
-    await FirebaseUtils.updateTask(task, 'description', task.description);
+    await FirebaseUtils.updateTask(task, 'title', task.title, uid);
+    await FirebaseUtils.updateTask(task, 'description', task.description, uid);
     await FirebaseUtils.updateTask(
-        task, 'dateTime', task.dateTime.millisecondsSinceEpoch);
+        task, 'dateTime', task.dateTime.millisecondsSinceEpoch, uid);
     listProvider.updateTask(task);
     Navigator.pop(context, _selectedDate);
   }

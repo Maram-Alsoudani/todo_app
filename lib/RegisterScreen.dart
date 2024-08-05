@@ -1,8 +1,14 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
 import 'package:to_do_app/AppColors.dart';
 import 'package:to_do_app/CustomTextFormField.dart';
+import 'package:to_do_app/LoginScreen.dart';
+import 'package:to_do_app/MyUser.dart';
+import 'package:to_do_app/firebase_utils.dart';
+import 'package:to_do_app/providers/AppConfigProvider.dart';
+import 'package:to_do_app/providers/AuthUserProvider.dart';
 
 import 'DialogUtils.dart';
 
@@ -26,11 +32,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     final localization = AppLocalizations.of(context)!;
+    var provider = Provider.of<AppConfigProvider>(context);
 
     return Stack(
       children: [
         Container(
-            color: AppColors.main_background_color_light,
+            color: provider.appTheme == ThemeMode.light
+                ? AppColors.main_background_color_light
+                : AppColors.main_background_color_dark,
             child: Image(
                 width: double.infinity,
                 height: double.infinity,
@@ -145,14 +154,25 @@ class _RegisterScreenState extends State<RegisterScreen> {
         final credential = await FirebaseAuth.instance
             .createUserWithEmailAndPassword(
                 email: emailController.text, password: passwordController.text);
+        MyUser myUser = MyUser(
+            email: emailController.text,
+            name: usernameController.text,
+            id: credential.user?.uid ?? "");
+        var authProvider =
+            Provider.of<AuthUserProvider>(context, listen: false);
+        authProvider.changeUser(myUser);
+        await FirebaseUtils.addUserToFireStore(myUser);
         //hide loading
         DialogUtils.hideLoading(context);
         //show message
         DialogUtils.showMessage(
             context: context,
-            message: "Register successfully.",
-            title: "Success",
-            posActionName: "ok");
+            message: AppLocalizations.of(context)!.register_successfully,
+            title: AppLocalizations.of(context)!.success,
+            posAction: () {
+              Navigator.pushReplacementNamed(context, LoginScreen.screenRoute);
+            },
+            posActionName: AppLocalizations.of(context)!.ok);
         print(credential.user?.uid ?? "");
       } on FirebaseAuthException catch (e) {
         if (e.code == 'weak-password') {
@@ -161,9 +181,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
           //show message
           DialogUtils.showMessage(
               context: context,
-              message: "The password provided is too weak.",
-              title: "Error",
-              posActionName: "ok");
+              message: AppLocalizations.of(context)!
+                  .the_password_provided_is_too_weak,
+              title: AppLocalizations.of(context)!.error,
+              posActionName: AppLocalizations.of(context)!.ok);
           print('The password provided is too weak.');
         } else if (e.code == 'email-already-in-use') {
           //hide loading
@@ -171,21 +192,31 @@ class _RegisterScreenState extends State<RegisterScreen> {
           //show message
           DialogUtils.showMessage(
               context: context,
-              message: "The account already exists for that email.",
-              title: "Error",
-              posActionName: "ok");
+              message: AppLocalizations.of(context)!
+                  .the_account_already_exists_for_that_email,
+              title: AppLocalizations.of(context)!.error,
+              posActionName: AppLocalizations.of(context)!.ok);
           print('The account already exists for that email.');
-        }
-      } catch (e) {
-        //hide loading
-        DialogUtils.hideLoading(context);
-        //show message
-        DialogUtils.showMessage(
+        } else if (e.code == 'network-request-failed') {
+          //hide loading
+          DialogUtils.hideLoading(context);
+          //show message
+          DialogUtils.showMessage(
             context: context,
-            message: e.toString(),
-            title: "Error",
-            posActionName: "ok");
-        print(e);
+            message: AppLocalizations.of(context)!.network_error,
+            posActionName: AppLocalizations.of(context)!.ok,
+            title: AppLocalizations.of(context)!.error,
+          );
+          print('network-request-failed');
+        } else {
+          DialogUtils.showMessage(
+            context: context,
+            message: "Error: ${e.toString()}",
+            posActionName: AppLocalizations.of(context)!.ok,
+            title: AppLocalizations.of(context)!.error,
+          );
+          print("FirebaseAuthException: ${e.message}");
+        }
       }
     }
   }
