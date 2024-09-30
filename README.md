@@ -30,10 +30,14 @@ A **Flutter-based mobile application** that enables users to create, manage, and
 1. Clone the repository:
    ```bash
    git clone https://github.com/Maram-Alsoudani/todo_app.git
-2.Navigate to the project directory:
+2. Navigate to the project directory:
+   ```bash
    cd todo_app
 3. Install the dependencies:
+   ```bash
    flutter pub get
 4. Run the app:
+   ```bash
    flutter run
+
 
